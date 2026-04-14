@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TheDuck🦆</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #6a5cff, #ff6ec7);
+  color: white;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 15px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* FORM */
+.container {
+  background: rgba(255,255,255,0.1);
+  margin: 10px;
+  padding: 15px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+input {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #ff4da6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* POSTS */
+.post {
+  background: white;
+  color: black;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 15px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* FOTO */
+.foto {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* INFO */
+.info {
+  flex: 1;
+}
+
+.nombre {
+  color: #6a5cff;
+  font-weight: bold;
+}
+
+.mensaje {
+  margin: 5px 0;
+}
+
+.feeling {
+  font-size: 12px;
+  color: #ff4da6;
+}
+
+/* LIKE */
+.like {
+  background: #eee;
+  border-radius: 20px;
+  padding: 5px 10px;
+  display: inline-block;
+  margin-top: 5px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="header">TheDuck🦆</div>
+
+<div class="container">
+<input id="nombre" placeholder="Nombre">
+<input id="mensaje" placeholder="¿Qué piensas?">
+<input id="feeling" placeholder="Feeling 😊">
+<input id="foto" type="file">
+<button onclick="publicar()">Publicar</button>
+</div>
+
+<div id="posts"></div>
+
+<script>
+
+const palabrasProhibidas = ["tonto","idiota","estupido","feo","Vieja cansona","molestona","Jarta","Imbecil","Sor","Lorena"];
+
+function contieneGroserias(texto){
+  texto = texto.toLowerCase();
+  return palabrasProhibidas.some(p=>texto.includes(p));
+}
+
+let posts = [];
+
+function publicar(){
+  const nombre = document.getElementById("nombre").value;
+  const mensaje = document.getElementById("mensaje").value;
+  const feeling = document.getElementById("feeling").value;
+  const file = document.getElementById("foto").files[0];
+
+  if(!nombre || !mensaje){
+    alert("Completa todo");
+    return;
+  }
+
+  if(contieneGroserias(mensaje)){
+    alert("Mensaje no permitido");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    posts.unshift({
+      nombre,
+      mensaje,
+      feeling,
+      foto: e.target.result,
+      likes: 0
+    });
+    render();
+  }
+
+  if(file){
+    reader.readAsDataURL(file);
+  } else {
+    posts.unshift({
+      nombre,
+      mensaje,
+      feeling,
+      foto: "",
+      likes: 0
+    });
+    render();
+  }
+}
+
+function render(){
+  const div = document.getElementById("posts");
+  div.innerHTML = "";
+
+  posts.forEach((p,i)=>{
+    div.innerHTML += `
+      <div class="post">
+        <img class="foto" src="${p.foto || 'https://i.imgur.com/4Z7K3Qp.png'}">
+        <div class="info">
+          <div class="nombre">${p.nombre}</div>
+          <div class="mensaje">${p.mensaje}</div>
+          <div class="feeling">Feeling: ${p.feeling}</div>
+          <div class="like" onclick="like(${i})">👍 ${p.likes}</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function like(i){
+  posts[i].likes++;
+  render();
+}
+
+</script>
+
+</body>
+</html>
